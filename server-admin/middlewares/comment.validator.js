@@ -1,5 +1,5 @@
 import { body, param } from 'express-validator';
-import { checkValidators } from "./check-validator.js";
+import { checkValidators } from "./check-validators.js";
 import Post from '../src/posts/post.model.js';
 
 export const validateCreateComment = [
