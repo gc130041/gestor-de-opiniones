@@ -94,7 +94,6 @@ export const deleteComment = async (req, res) => {
             });
         }
 
-        // Validar propiedad (o permitir a admin)
         if (comment.author.toString() !== req.user._id.toString() && req.user.role !== 'ADMIN_ROLE') {
             return res.status(401).json({
                 success: false,

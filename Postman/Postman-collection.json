@@ -1,8 +1,8 @@
 {
 	"info": {
-		"_postman_id": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
-		"name": "Gestor de Opiniones",
-		"description": "Colección corregida para gestionar el proyecto",
+		"_postman_id": "b3f9c6d1-1234-4567-8901-abcdef123456",
+		"name": "Gestor de Opiniones API",
+		"description": "Colección para el sistema de gestión de opiniones (Kinal). Incluye Auth, Usuarios, Publicaciones y Comentarios.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -10,16 +10,18 @@
 			"name": "Auth",
 			"item": [
 				{
-					"name": "Login",
+					"name": "Login (Auto-set Token)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"var jsonData = pm.response.json();",
-									"if(jsonData.token) {",
-									"    pm.collectionVariables.set(\"token\", jsonData.token);",
-									"    console.log(\"Token actualizado\");",
+									"if (jsonData.success && jsonData.userDetails && jsonData.userDetails.token) {",
+									"    pm.globals.set(\"token\", jsonData.userDetails.token);",
+									"    console.log(\"Token guardado automáticamente: \" + jsonData.userDetails.token);",
+									"} else {",
+									"    console.log(\"No se pudo guardar el token. Verifica las credenciales.\");",
 									"}"
 								],
 								"type": "text/javascript"
@@ -31,7 +33,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"email\":\"admin@kinal.edu.gt\",\"password\":\"123456\"}",
+							"raw": "{\n    \"email\": \"admin@kinal.edu.gt\",\n    \"password\": \"12345678\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -39,45 +41,32 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/auth/login",
+							"raw": "{{base_url}}/auth/login",
 							"host": [
-								"{{url}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"auth",
 								"login"
 							]
-						}
+						},
+						"description": "Inicia sesión. Si es exitoso, guarda el token automáticamente en las variables globales de Postman."
 					},
 					"response": []
 				}
 			]
 		},
 		{
-			"name": "Account",
+			"name": "Accounts",
 			"item": [
 				{
-					"name": "Register",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = pm.response.json();",
-									"if(jsonData.success && jsonData.account) {",
-									"    pm.collectionVariables.set(\"user_uid\", jsonData.account.uid);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
+					"name": "Register User",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"name\":\"Usuario Test\",\"username\":\"usertest01\",\"email\":\"test@kinal.edu.gt\",\"password\":\"123456\"}",
+							"raw": "{\n    \"name\": \"Usuario Nuevo\",\n    \"username\": \"usernew\",\n    \"email\": \"user@gmail.com\",\n    \"password\": \"123456\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -85,9 +74,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/account/register",
+							"raw": "{{base_url}}/account/register",
 							"host": [
-								"{{url}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"account",
@@ -110,7 +99,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"name\":\"Usuario Actualizado\",\"role\":\"ADMIN_ROLE\"}",
+							"raw": "{\n    \"name\": \"Nombre Actualizado\",\n    \"role\": \"USER_ROLE\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -118,13 +107,20 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/account/{{user_uid}}",
+							"raw": "{{base_url}}/account/:id",
 							"host": [
-								"{{url}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"account",
-								"{{user_uid}}"
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "ID_DEL_USUARIO_AQUI",
+									"description": "ID del usuario a editar"
+								}
 							]
 						}
 					},
@@ -133,24 +129,10 @@
 			]
 		},
 		{
-			"name": "Post",
+			"name": "Posts",
 			"item": [
 				{
 					"name": "Create Post",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = pm.response.json();",
-									"if(jsonData.success && jsonData.post) {",
-									"    pm.collectionVariables.set(\"post_id\", jsonData.post._id);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -162,7 +144,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"title\":\"Mi Opinión sobre Node.js\",\"category\":\"Programación\",\"content\":\"Node.js es excelente para backends escalables.\"}",
+							"raw": "{\n    \"title\": \"Mi primera publicación\",\n    \"category\": \"Tecnología\",\n    \"content\": \"Este es el contenido de mi post sobre Node.js\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -170,9 +152,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/post",
+							"raw": "{{base_url}}/post",
 							"host": [
-								"{{url}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"post"
@@ -187,12 +169,52 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/post",
+							"raw": "{{base_url}}/post",
 							"host": [
-								"{{url}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Post",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Título editado\",\n    \"content\": \"Contenido actualizado\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/post/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"post",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "ID_DEL_POST",
+									"description": "ID del post a actualizar"
+								}
 							]
 						}
 					},
@@ -210,13 +232,20 @@
 							}
 						],
 						"url": {
-							"raw": "{{url}}/post/{{post_id}}",
+							"raw": "{{base_url}}/post/:id",
 							"host": [
-								"{{url}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"post",
-								"{{post_id}}"
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "ID_DEL_POST",
+									"description": "ID del post a eliminar"
+								}
 							]
 						}
 					},
@@ -225,24 +254,10 @@
 			]
 		},
 		{
-			"name": "Comment",
+			"name": "Comments",
 			"item": [
 				{
-					"name": "Add Comment",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = pm.response.json();",
-									"if(jsonData.success && jsonData.comment) {",
-									"    pm.collectionVariables.set(\"comment_id\", jsonData.comment._id);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
+					"name": "Create Comment",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -254,7 +269,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"content\":\"Estoy totalmente de acuerdo.\",\"postId\":\"{{post_id}}\"}",
+							"raw": "{\n    \"content\": \"Muy buen post, gracias por la info.\",\n    \"postId\": \"ID_DEL_POST_AQUI\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -262,9 +277,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/comment",
+							"raw": "{{base_url}}/comment",
 							"host": [
-								"{{url}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"comment"
@@ -279,14 +294,61 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/comment/post/{{post_id}}",
+							"raw": "{{base_url}}/comment/post/:postId",
 							"host": [
-								"{{url}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"comment",
 								"post",
-								"{{post_id}}"
+								":postId"
+							],
+							"variable": [
+								{
+									"key": "postId",
+									"value": "ID_DEL_POST",
+									"description": "ID del post para ver sus comentarios"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Comment",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"Comentario editado.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/comment/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"comment",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "ID_DEL_COMENTARIO",
+									"description": "ID del comentario a editar"
+								}
 							]
 						}
 					},
@@ -304,13 +366,20 @@
 							}
 						],
 						"url": {
-							"raw": "{{url}}/comment/{{comment_id}}",
+							"raw": "{{base_url}}/comment/:id",
 							"host": [
-								"{{url}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"comment",
-								"{{comment_id}}"
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "ID_DEL_COMENTARIO",
+									"description": "ID del comentario a eliminar"
+								}
 							]
 						}
 					},
@@ -321,27 +390,12 @@
 	],
 	"variable": [
 		{
-			"key": "url",
+			"key": "base_url",
 			"value": "http://localhost:3000/gestorOpiniones/v1",
 			"type": "string"
 		},
 		{
 			"key": "token",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "user_uid",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "post_id",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "comment_id",
 			"value": "",
 			"type": "string"
 		}

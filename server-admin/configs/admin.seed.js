@@ -3,7 +3,6 @@ import bcryptjs from 'bcryptjs';
 
 export const createAdminSeed = async () => {
     try {
-        // Busca si ya existe un admin
         const adminExists = await Account.findOne({ role: 'ADMIN_ROLE' });
 
         if (!adminExists) {

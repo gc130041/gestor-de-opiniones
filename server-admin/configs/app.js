@@ -37,4 +37,3 @@ export const initServer = async () => {
     }
 }
 
-// initServer();  <--- ¡ESTA LÍNEA SE ELIMINA! (Causaba el doble inicio)

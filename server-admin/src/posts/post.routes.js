@@ -7,7 +7,7 @@ const router = Router();
 
 router.post('/', validateJWT, validateCreatePost, createPost);
 router.get('/', getPosts);
-router.put('/:id', validateJWT, validatePostId, updatePost); // Ruta agregada
+router.put('/:id', validateJWT, validatePostId, updatePost);
 router.delete('/:id', validateJWT, validatePostId, deletePost);
 
 export default router;

@@ -18,7 +18,6 @@ export const dbConnection = async () => {
 
     mongoose.connection.on("open", async () => {
       console.log("MongoDB | conectado a la base de datos GestorOpiniones");
-      // Ejecutar el seed aquí cuando la conexión esté abierta
       await createAdminSeed(); 
     });
 

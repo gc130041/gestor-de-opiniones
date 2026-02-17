@@ -92,8 +92,6 @@ export const deletePost = async (req, res) => {
             });
         }
 
-        // Validar que el usuario sea el dueño o sea ADMIN
-        // Nota: req.user viene del validate-jwt
         if (post.author.toString() !== req.user._id.toString() && req.user.role !== 'ADMIN_ROLE') {
             return res.status(401).json({
                 success: false,
