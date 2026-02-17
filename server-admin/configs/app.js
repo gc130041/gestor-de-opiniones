@@ -12,7 +12,6 @@ import authRoutes from '../src/auth/auth.routes.js';
 config();
 
 const app = express();
-
 const port = process.env.PORT || 3000;
 
 app.use(helmet());
@@ -21,15 +20,21 @@ app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+// Rutas
 app.use('/gestorOpiniones/v1/account', accountRoutes);
 app.use('/gestorOpiniones/v1/post', postRoutes);
 app.use('/gestorOpiniones/v1/comment', commentRoutes);
 app.use('/gestorOpiniones/v1/auth', authRoutes);
 
 export const initServer = async () => {
-    await dbConnection();
-    app.listen(port);
-    console.log(`Server running on port ${port}`);
+    try {
+        await dbConnection();
+        app.listen(port, () => {
+            console.log(`Server running on port ${port}`);
+        });
+    } catch (error) {
+        console.error('Error al iniciar el servidor:', error);
+    }
 }
 
-initServer();
+// initServer();  <--- ¡ESTA LÍNEA SE ELIMINA! (Causaba el doble inicio)
