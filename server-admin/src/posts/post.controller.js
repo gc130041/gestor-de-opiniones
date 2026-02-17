@@ -39,7 +39,6 @@ export const getPosts = async (req, res) => {
     }
 };
 
-// FUNCIÓN AGREGADA: Actualizar Post
 export const updatePost = async (req, res) => {
     try {
         const { id } = req.params;
@@ -54,7 +53,6 @@ export const updatePost = async (req, res) => {
             });
         }
 
-        // Validar que el usuario que actualiza sea el dueño
         if (post.author.toString() !== req.user._id.toString()) {
             return res.status(401).json({
                 success: false,
