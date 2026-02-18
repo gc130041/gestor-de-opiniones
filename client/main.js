@@ -123,38 +123,63 @@ async function loadPosts() {
 
 // Renderizar Posts en HTML
 function renderPosts(posts) {
+    const postsContainer = document.getElementById('posts-container');
     postsContainer.innerHTML = '';
     
+    console.log("Usuario actual:", currentUser); // Para depurar en consola
+
     posts.forEach(post => {
-        const isOwner = currentUser && post.author._id === currentUser.uid;
+        // === CORRECCIÓN AQUÍ ===
+        // El backend envía 'uid' en lugar de '_id' dentro de author debido al toJSON del modelo
+        const authorId = post.author.uid || post.author._id || post.author;
+        const currentUserId = currentUser ? currentUser.uid : null;
         
+        // Comparamos los IDs como strings para evitar errores de tipo
+        const isOwner = currentUserId && (String(authorId) === String(currentUserId));
+        
+        console.log(`Post: ${post.title} | Autor ID: ${authorId} | Mi ID: ${currentUserId} | Es dueño: ${isOwner}`);
+
         const card = document.createElement('div');
         card.className = 'card mb-3 shadow-sm';
+        
         card.innerHTML = `
             <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <h5 class="card-title text-primary">${post.title}</h5>
-                    <small class="text-muted">${post.category}</small>
-                </div>
-                <h6 class="card-subtitle mb-2 text-muted">Por: ${post.author.username || 'Desconocido'}</h6>
-                <p class="card-text">${post.content}</p>
-                
-                <div class="d-flex gap-2 mb-3">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="card-title text-primary mb-0">${post.title}</h5>
+                        <small class="text-muted">${post.category}</small>
+                    </div>
+                    
+                    <!-- BOTONES DE ACCIÓN (Solo visibles si es dueño) -->
                     ${isOwner ? `
-                        <button class="btn btn-sm btn-outline-danger" onclick="deletePost('${post._id}')">Eliminar</button>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="editPost('${post._id}', '${post.title}', '${post.content}')">Editar</button>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletePost('${post._id}')">
+                                Eliminar
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="editPost('${post._id}', '${post.title}', '${post.content}')">
+                                Editar
+                            </button>
+                        </div>
                     ` : ''}
-                    <button class="btn btn-sm btn-info text-white" onclick="toggleComments('${post._id}')">Ver Comentarios</button>
                 </div>
 
-                <!-- Sección de Comentarios (Oculta por defecto) -->
-                <div id="comments-${post._id}" class="comment-section p-3 rounded hidden">
+                <h6 class="card-subtitle my-2 text-muted">Por: ${post.author.username || 'Desconocido'}</h6>
+                <p class="card-text mt-3">${post.content}</p>
+                
+                <hr>
+                
+                <button class="btn btn-sm btn-primary" onclick="toggleComments('${post._id}')">
+                    Ver Comentarios
+                </button>
+
+                <!-- Sección de Comentarios -->
+                <div id="comments-${post._id}" class="comment-section p-3 rounded mt-2 hidden">
                     <div id="comments-list-${post._id}" class="mb-2">
                         <small>Cargando comentarios...</small>
                     </div>
                     <form onsubmit="postComment(event, '${post._id}')" class="d-flex gap-2">
                         <input type="text" class="form-control form-control-sm" placeholder="Escribe un comentario..." required>
-                        <button type="submit" class="btn btn-sm btn-primary">Enviar</button>
+                        <button type="submit" class="btn btn-sm btn-dark">Enviar</button>
                     </form>
                 </div>
             </div>
@@ -194,18 +219,30 @@ createPostForm.addEventListener('submit', async (e) => {
 
 // Eliminar Post
 window.deletePost = async (id) => {
-    if(!confirm('¿Estás seguro de eliminar esta publicación?')) return;
+
+    if(!confirm('¿Estás seguro de que deseas eliminar esta publicación permanentemente?')) return;
 
     try {
+        
         const res = await fetch(`${API_URL}/post/${id}`, {
             method: 'DELETE',
-            headers: { 'x-token': token }
+            headers: { 
+                'x-token': token, 
+                'Content-Type': 'application/json'
+            }
         });
+
         const data = await res.json();
-        if(data.success) loadPosts();
-        else alert(data.message);
+
+        if (data.success) {
+            alert('Publicación eliminada correctamente');
+            loadPosts(); 
+        } else {
+            alert(data.message || 'Error al eliminar');
+        }
     } catch (error) {
-        console.error(error);
+        console.error('Error:', error);
+        alert('Error de conexión con el servidor');
     }
 };
 

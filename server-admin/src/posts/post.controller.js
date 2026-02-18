@@ -1,5 +1,6 @@
 import Post from './post.model.js';
 import Account from '../accounts/account.model.js';
+import Comment from '../comments/comment.model.js';
 
 export const createPost = async (req, res) => {
     try {
@@ -96,6 +97,8 @@ export const deletePost = async (req, res) => {
                 message: 'No tienes permiso para eliminar esta publicación'
             });
         }
+
+        await Comment.deleteMany({ post: id });
 
         await Post.findByIdAndDelete(id);
 

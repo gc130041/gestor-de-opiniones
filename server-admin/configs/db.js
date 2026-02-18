@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { createAdminSeed } from "./admin.seed.js"; // Asegúrate de tener este archivo creado
+import { createAdminSeed } from "./admin.seed.js";
 
 export const dbConnection = async () => {
   try {
