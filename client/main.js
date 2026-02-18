@@ -83,10 +83,9 @@ registerForm.addEventListener('submit', async (e) => {
 
         if (data.success) {
             alert('Registro exitoso. Por favor inicia sesión.');
-            document.getElementById('login-tab').click(); // Cambiar a tab de login
+            document.getElementById('login-tab').click(); 
             registerForm.reset();
         } else {
-            // Mostrar primer error si viene array de express-validator
             const msg = Array.isArray(data.errors) ? data.errors[0].msg : data.message;
             alert(msg || 'Error en el registro');
         }
@@ -129,12 +128,10 @@ function renderPosts(posts) {
     console.log("Usuario actual:", currentUser); // Para depurar en consola
 
     posts.forEach(post => {
-        // === CORRECCIÓN AQUÍ ===
-        // El backend envía 'uid' en lugar de '_id' dentro de author debido al toJSON del modelo
+        
         const authorId = post.author.uid || post.author._id || post.author;
         const currentUserId = currentUser ? currentUser.uid : null;
         
-        // Comparamos los IDs como strings para evitar errores de tipo
         const isOwner = currentUserId && (String(authorId) === String(currentUserId));
         
         console.log(`Post: ${post.title} | Autor ID: ${authorId} | Mi ID: ${currentUserId} | Es dueño: ${isOwner}`);
@@ -246,7 +243,7 @@ window.deletePost = async (id) => {
     }
 };
 
-// Editar Post (Simplificado con prompt)
+// Editar Post
 window.editPost = async (id, currentTitle, currentContent) => {
     const newTitle = prompt("Nuevo título:", currentTitle);
     const newContent = prompt("Nuevo contenido:", currentContent);
